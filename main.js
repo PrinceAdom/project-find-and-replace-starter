@@ -4,6 +4,11 @@ const replaceAllButton = document.querySelector(".replace-all-button")
 const replaceOneButton = document.querySelector(".replace-one-button")
 const caseSensitiveSearch = document.querySelector(".case-sensitive")
 
+//userSearches = window.localStorage
+/* counter = 0
+counterKey = window.localStorage 
+userSearchString = window.localStorage */
+
 //returns all the 27 rows in the table as an array of of objects
 const rowElements = document.querySelectorAll(".row")
 
@@ -12,40 +17,79 @@ function getCellElements (currentRowElement) {
     return currentRowElement.querySelectorAll(".cell")
 }
 
-replaceOneButton.addEventListener("click", function(){
+/* 
+In addition to the "Replace All" button, create a "Replace One" button which only replaces the first occurrence of the found search string.
+SOLUTION: put find and repalce feature into a function
+*/
 
-})
+/** 
+ * Summary: finds and replaces the given string.
+ * Description: 
+ * @param {string} replaceType - takes the value "once" or "all" 
+ * @return - returns nothing
 
-replaceAllButton.addEventListener("click", function(){
-    let stringToFind = findInput.value;
+*/
+function findAndReplace(replaceType){
+    let stringToFind = ""
     let stringToReplace = replaceInput.value;
-    let stringRepalcementCount = 0
+    let numberOfCellsAffected = 0
+    let cellContent = ""
+
+    /* ++counter
+    counterKey.setItem("counterKey", counter.toString()) */
+
+
+    //check if case-sensitive mode is activated
+    if(caseSensitiveSearch.checked){
+        stringToFind = findInput.value;
+    }else{
+        stringToFind = findInput.value.toLowerCase();
+    }
+
+    if(stringToFind === ""){
+        alert("Nothing to find/replace right now . . .")
+        return 0
+    }
 
     //nested loop traverses each cell
-    for(let row = 0; row < rowElements.length; row++){
-        for(let cell = 0; cell < getCellElements(rowElements[row]).length; cell++){
-            if(getCellElements(rowElements[row])[cell].innerText.includes(stringToFind)){
-                console.log("\"" + stringToFind + "\" found at " + "row " + (row+1) + " cell " + (cell+1))
-                console.log("Cell content: \"" + getCellElements(rowElements[row])[cell].innerText + "\"")
-                console.log("\n")
+    top: for(let row = 0; row < rowElements.length; row++){
+            for(let cell = 0; cell < getCellElements(rowElements[row]).length; cell++){
+                if(caseSensitiveSearch.checked){
+                    cellContent = getCellElements(rowElements[row])[cell].innerText
+                }
+                else{
+                    cellContent = getCellElements(rowElements[row])[cell].innerText.toLowerCase()
+                }
+                if(cellContent.includes(stringToFind)){
 
-                //find and replace feature is done here
-                getCellElements(rowElements[row])[cell].innerText = stringMutator(getCellElements(rowElements[row])[cell].innerText, stringToFind, stringToReplace)
+                    /* console.log("\"" + stringToFind + "\" found at " + "row " + (row+1) + " cell " + (cell+1))
+                    console.log("Cell content: \"" + cellContent + "\"")
+                    console.log("\n") */
 
-                ++stringRepalcementCount
+                    //find and replace feature is done here
+                    getCellElements(rowElements[row])[cell].innerText = stringMutator(cellContent, stringToFind, stringToReplace)
+                    ++numberOfCellsAffected
+                }
 
-            }
-            else{
-                console.log(`${stringToFind}" not found!`)
+                //breakout of the loop (or continue search) based on the button pressed
+                if(numberOfCellsAffected === 1 && replaceType === "once"){
+                    break top
+                }
             }
         }
 
-    }
-
+    //display the number of strings found and replaced
     setTimeout(function(){
-        alert("number of strings replaced: " + stringRepalcementCount)
+        alert("number of cells affected: " + numberOfCellsAffected)
     }, 1000)
+}
 
+replaceOneButton.addEventListener("click", function(){
+    findAndReplace("once")
+})
+
+replaceAllButton.addEventListener("click", function(){
+    findAndReplace("all")
 })
 
 //method to "mutate" strings
